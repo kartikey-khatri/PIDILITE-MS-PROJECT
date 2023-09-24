@@ -1,0 +1,465 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "certificates_AzureClassicRunAsCertificate_base64Value": {
+            "type": "SecureString"
+        },
+        "certificates_AzureRunAsCertificate_base64Value": {
+            "type": "SecureString"
+        },
+        "credentials_PowerShell_password": {
+            "type": "SecureString"
+        },
+        "servers_piddwsrvprdsa_name": {
+            "defaultValue": "piddwsrvprdsa",
+            "type": "String"
+        },
+        "storageAccounts_piddwstg_name": {
+            "defaultValue": "piddwstg",
+            "type": "String"
+        },
+        "servers_pidasprdsa_name": {
+            "defaultValue": "pidasprdsa",
+            "type": "String"
+        },
+        "servers_pidasdev1sa_name": {
+            "defaultValue": "pidasdev1sa",
+            "type": "String"
+        },
+        "networkInterfaces_i2aprojectdp557_name": {
+            "defaultValue": "i2aprojectdp557",
+            "type": "String"
+        },
+        "publicIPAddresses_I2AProjectDP_ip_name": {
+            "defaultValue": "I2AProjectDP-ip",
+            "type": "String"
+        },
+        "storageAccounts_rgppiddwprdsadiag_name": {
+            "defaultValue": "rgppiddwprdsadiag",
+            "type": "String"
+        },
+        "storageAccounts_sqlva3ugxc2rmd6ed2_name": {
+            "defaultValue": "sqlva3ugxc2rmd6ed2",
+            "type": "String"
+        },
+        "virtualNetworks_RGppiddwPRD_SA_vnet_name": {
+            "defaultValue": "RGppiddwPRD-SA-vnet",
+            "type": "String"
+        },
+        "automationAccounts_Autopiddwprd_sa_name": {
+            "defaultValue": "Autopiddwprd-sa",
+            "type": "String"
+        },
+        "networkSecurityGroups_I2AProjectDP_nsg_name": {
+            "defaultValue": "I2AProjectDP-nsg",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.AnalysisServices/servers",
+            "apiVersion": "2017-08-01",
+            "name": "[parameters('servers_pidasdev1sa_name')]",
+            "location": "Southeast Asia",
+            "tags": {
+                "Owner": "Satish Surana, Nishant Ranjan"
+            },
+            "sku": {
+                "name": "S2",
+                "tier": "Standard",
+                "capacity": 1
+            },
+            "properties": {
+                "managedMode": 1,
+                "backupBlobContainerUri": "https://piddwstgsa.blob.core.windows.net/aasbackup",
+                "querypoolConnectionMode": "All",
+                "serverMonitorMode": 1
+            }
+        },
+        {
+            "type": "Microsoft.AnalysisServices/servers",
+            "apiVersion": "2017-08-01",
+            "name": "[parameters('servers_pidasprdsa_name')]",
+            "location": "Southeast Asia",
+            "tags": {
+                "Owner": "Satish Surana"
+            },
+            "sku": {
+                "name": "S8v2",
+                "tier": "Standard",
+                "capacity": 1
+            },
+            "properties": {
+                "managedMode": 1,
+                "asAdministrators": {
+                    "members": [
+                        "powerbi@pidilite.com",
+                        "satish.surana@pidilite.com",
+                        "powerbidev@pidilite.com",
+                        "ots1171@pidilite.com"
+                    ]
+                },
+                "backupBlobContainerUri": "https://piddwstgsa.blob.core.windows.net/aasbackup",
+                "querypoolConnectionMode": "All",
+                "serverMonitorMode": 1
+            }
+        },
+        {
+            "type": "Microsoft.Automation/automationAccounts",
+            "apiVersion": "2022-08-08",
+            "name": "[parameters('automationAccounts_Autopiddwprd_sa_name')]",
+            "location": "southeastasia",
+            "tags": {
+                "Owner": "Satish Surana"
+            },
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "sku": {
+                    "name": "Basic"
+                },
+                "encryption": {
+                    "keySource": "Microsoft.Automation",
+                    "identity": {}
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2023-05-01",
+            "name": "[parameters('networkSecurityGroups_I2AProjectDP_nsg_name')]",
+            "location": "centralindia",
+            "tags": {
+                "Owner": "Satish Surana"
+            },
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "RDP",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_I2AProjectDP_nsg_name'), 'RDP')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 300,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    },
+                    {
+                        "name": "Port_22",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_I2AProjectDP_nsg_name'), 'Port_22')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "22",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 310,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2023-05-01",
+            "name": "[parameters('publicIPAddresses_I2AProjectDP_ip_name')]",
+            "location": "centralindia",
+            "tags": {
+                "Owner": "Satish Surana"
+            },
+            "sku": {
+                "name": "Basic",
+                "tier": "Regional"
+            },
+            "properties": {
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Dynamic",
+                "idleTimeoutInMinutes": 4,
+                "ipTags": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2023-05-01",
+            "name": "[parameters('virtualNetworks_RGppiddwPRD_SA_vnet_name')]",
+            "location": "centralindia",
+            "tags": {
+                "Owner": "Satish Surana"
+            },
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/24"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "default",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_RGppiddwPRD_SA_vnet_name'), 'default')]",
+                        "properties": {
+                            "addressPrefix": "10.0.0.0/24",
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets"
+                    }
+                ],
+                "virtualNetworkPeerings": [],
+                "enableDdosProtection": false
+            }
+        },
+        {
+            "type": "Microsoft.Sql/servers",
+            "apiVersion": "2023-02-01-preview",
+            "name": "[parameters('servers_piddwsrvprdsa_name')]",
+            "location": "southeastasia",
+            "tags": {
+                "Owner": "Satish Surana, Nishant Ranjan"
+            },
+            "kind": "v12.0",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "administratorLogin": "piladmin",
+                "version": "12.0",
+                "minimalTlsVersion": "None",
+                "publicNetworkAccess": "Enabled",
+                "administrators": {
+                    "administratorType": "ActiveDirectory",
+                    "principalType": "Group",
+                    "login": "Sannidhya.Sahu@pidilite.com",
+                    "sid": "b386f80f-6035-42be-9cf8-f8f5a8c7a546",
+                    "tenantId": "fea60e84-eaf3-48a4-90ad-795360fb0878"
+                },
+                "restrictOutboundNetworkAccess": "Disabled"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "name": "[parameters('storageAccounts_piddwstg_name')]",
+            "location": "southeastasia",
+            "tags": {
+                "Owner": "Satish Surana"
+            },
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "defaultToOAuthAuthentication": false,
+                "publicNetworkAccess": "Enabled",
+                "routingPreference": {
+                    "routingChoice": "MicrosoftRouting",
+                    "publishMicrosoftEndpoints": false,
+                    "publishInternetEndpoints": false
+                },
+                "minimumTlsVersion": "TLS1_2",
+                "allowBlobPublicAccess": true,
+                "allowSharedKeyAccess": true,
+                "networkAcls": {
+                    "resourceAccessRules": [],
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [
+                        {
+                            "value": "14.143.43.170",
+                            "action": "Allow"
+                        },
+                        {
+                            "value": "136.226.254.183",
+                            "action": "Allow"
+                        },
+                        {
+                            "value": "13.127.226.71",
+                            "action": "Allow"
+                        },
+                        {
+                            "value": "61.247.249.62",
+                            "action": "Allow"
+                        },
+                        {
+                            "value": "172.253.118.102",
+                            "action": "Allow"
+                        },
+                        {
+                            "value": "142.250.193.46",
+                            "action": "Allow"
+                        }
+                    ],
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                },
+                "accessTier": "Hot"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "name": "[parameters('storageAccounts_rgppiddwprdsadiag_name')]",
+            "location": "centralindia",
+            "tags": {
+                "Owner": "Satish Surana"
+            },
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "Storage",
+            "properties": {
+                "defaultToOAuthAuthentication": false,
+                "publicNetworkAccess": "Disabled",
+                "minimumTlsVersion": "TLS1_2",
+                "allowBlobPublicAccess": false,
+                "allowSharedKeyAccess": true,
+                "networkAcls": {
+                    "resourceAccessRules": [],
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Deny"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "name": "[parameters('storageAccounts_sqlva3ugxc2rmd6ed2_name')]",
+            "location": "southeastasia",
+            "tags": {
+                "Owner": "Satish Surana"
+            },
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "publicNetworkAccess": "Disabled",
+                "minimumTlsVersion": "TLS1_2",
+                "allowBlobPublicAccess": false,
+                "networkAcls": {
+                    "resourceAccessRules": [],
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Deny"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                },
+                "accessTier": "Hot"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2023-05-01",
+            "name": "[parameters('networkInterfaces_i2aprojectdp557_name')]",
+            "location": "centralindia",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_I2AProjectDP_ip_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_RGppiddwPRD_SA_vnet_name'), 'default')]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_I2AProjectDP_nsg_name'))]"
+            ],
+            "tags": {
+                "Owner": "Satish Surana"
+            },
+            "kind": "Regular",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "id": "[concat(resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_i2aprojectdp557_name')), '/ipConfigurations/ipconfig1')]",
+                        "etag": "W/\"e9d24c5d-bd03-4cd3-ad90-956ab1bd78c7\"",
+                        "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                        "properties": {
+                            "provisioningState": "Succeeded",
+                            "privateIPAddress": "10.0.0.4",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_I2AProjectDP_ip_name'))]"
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_RGppiddwPRD_SA_vnet_name'), 'default')]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4"
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableAcceleratedNetworking": true,
+                "enableIPForwarding": false,
+                "disableTcpStateTracking": false,
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_I2AProjectDP_nsg_name'))]"
+                },
+                "nicType": "Standard",
+                "auxiliaryMode": "None",
+                "auxiliarySku": "None"
+            }
+        },
+    ]
+}

@@ -1,0 +1,48 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "certificates_AzureClassicRunAsCertificate_base64Value": {
+            "value": null
+        },
+        "certificates_AzureRunAsCertificate_base64Value": {
+            "value": null
+        },
+        "credentials_PowerShell_password": {
+            "value": null
+        },
+        "servers_piddwsrvprdsa_name": {
+            "value": null
+        },
+        "storageAccounts_piddwstg_name": {
+            "value": null
+        },
+        "servers_pidasprdsa_name": {
+            "value": null
+        },
+        "servers_pidasdev1sa_name": {
+            "value": null
+        },
+        "networkInterfaces_i2aprojectdp557_name": {
+            "value": null
+        },
+        "publicIPAddresses_I2AProjectDP_ip_name": {
+            "value": null
+        },
+        "storageAccounts_rgppiddwprdsadiag_name": {
+            "value": null
+        },
+        "storageAccounts_sqlva3ugxc2rmd6ed2_name": {
+            "value": null
+        },
+        "virtualNetworks_RGppiddwPRD_SA_vnet_name": {
+            "value": null
+        },
+        "automationAccounts_Autopiddwprd_sa_name": {
+            "value": null
+        },
+        "networkSecurityGroups_I2AProjectDP_nsg_name": {
+            "value": null
+        }
+    }
+}
